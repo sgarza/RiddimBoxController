@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal.h>
 #define USE_ROTARY_ENCODER
-// #define ENCODER_OPTIMIZE_INTERRUPTS
+#define ENCODER_OPTIMIZE_INTERRUPTS
 #include <MIDI_Controller.h>
 #include <Keypad.h>
 
@@ -191,7 +191,7 @@ void sysexHandler(byte *data, unsigned int size) {
 
 void setup() {
   lcd.begin(20, 4);
-  
+
   lcd.setCursor(0, 0);
   // print from 0 to 9:
   for (int thisChar = 0; thisChar < 10; thisChar++) {
