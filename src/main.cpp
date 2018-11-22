@@ -180,7 +180,7 @@ void keypadEvent(KeypadEvent key){
 
     if (key == 'd') {
       Serial.println("Pressend Panic!");
-      
+      usbMIDI.sendRealTime(usbMIDI.Stop);
     }
 
     if (key == 'e') {
