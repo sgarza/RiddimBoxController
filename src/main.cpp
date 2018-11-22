@@ -9,6 +9,7 @@ const byte ROWS = 2; //four rows
 const byte COLS = 3; //four columns
 const int chan = 1, vel = 127, rs = 6, en = 7;
 const int bpmCC = 1, swingCC = 2;
+// const int notePlay = 1;
 char keys[ROWS][COLS] = {
   {'d','e','f'},
   {'a','b','c'}
@@ -157,6 +158,47 @@ void printButton(char key) {
   lcd.print("Button: " + String(key));
 }
 
+// Keypad Event
+void keypadEvent(KeypadEvent key){
+  Serial.println(key);
+  //Serial.println("type: " + String(keypad.getState()));
+  //Serial.println(PRESSED);
+  switch (buttons.getState()){
+  case PRESSED:
+    if (key == 'a') {
+      Serial.println("Pressed Prev");
+    }
+
+    if (key == 'b') {
+      Serial.println("Pressed Play");
+        usbMIDI.sendRealTime(usbMIDI.Start);
+      }
+
+    if (key == 'c') {
+      Serial.println("Pressed Next");
+    }
+
+    if (key == 'd') {
+      Serial.println("Pressend Panic!");
+      
+    }
+
+    if (key == 'e') {
+      Serial.println("Pressed Repeat");
+    }
+
+    if (key == 'f') {
+      Serial.println("Pressed End");
+    }
+
+    break;
+
+  case HOLD:
+    Serial.println("HOLD IT");
+    break;
+  }
+}
+
 void printBPM(String bpm) {
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -200,16 +242,15 @@ void setup() {
   }
 
   usbMIDI.setHandleSystemExclusive(sysexHandler);
+  
+  // Setup buttons
+  buttons.addEventListener(keypadEvent);
+  buttons.setHoldTime(1500);
 }
 
 void loop() {
   usbMIDI.read();
   MIDI_Controller.refresh();
 
-  char customKey = buttons.getKey();
-  
-  if (customKey){
-    printButton(customKey);
-    Serial.println(customKey);
-  }
+  buttons.getKey();
 }
