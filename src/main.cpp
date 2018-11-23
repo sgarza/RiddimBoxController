@@ -8,7 +8,13 @@
 const byte ROWS = 2; //four rows
 const byte COLS = 3; //four columns
 const int chan = 1, vel = 127, rs = 6, en = 7;
-const int bpmCC = 1, swingCC = 2;
+const int bpmCC = 1, 
+          swingCC = 2,
+          nextPrevCC = 3,
+          repeatCC = 4;
+const int noteNext = 1, 
+          notePrev = 2,
+          noteRepeat = 1;
 // const int notePlay = 1;
 char keys[ROWS][COLS] = {
   {'d','e','f'},
@@ -167,6 +173,7 @@ void keypadEvent(KeypadEvent key){
   case PRESSED:
     if (key == 'a') {
       Serial.println("Pressed Prev");
+      usbMIDI.sendControlChange(nextPrevCC, notePrev, chan);
     }
 
     if (key == 'b') {
@@ -176,6 +183,7 @@ void keypadEvent(KeypadEvent key){
 
     if (key == 'c') {
       Serial.println("Pressed Next");
+      usbMIDI.sendControlChange(nextPrevCC, noteNext, chan);
     }
 
     if (key == 'd') {
@@ -185,6 +193,7 @@ void keypadEvent(KeypadEvent key){
 
     if (key == 'e') {
       Serial.println("Pressed Repeat");
+      usbMIDI.sendControlChange(repeatCC, noteRepeat, chan);
     }
 
     if (key == 'f') {
