@@ -209,20 +209,37 @@ void keypadEvent(KeypadEvent key){
 }
 
 void printBPM(String bpm) {
-  lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("BPM: " + bpm);
+  if (bpm.length() == 2 ) {
+    lcd.print("BPM: " + bpm + " ");
+  } else {
+    lcd.print("BPM: " + bpm);
+  }
+  
+}
+
+void printSwing(String swing) {
+  // col, row
+  lcd.setCursor(12, 0);
+  lcd.print("Swing: " + swing);
 }
 
 void sysexHandler(byte *data, unsigned int size) {
   Serial.println("------");
 
+  // IS BPM OF 2 DIGITS
   if (data[1] == 66 && data[4] == 247) {
     printBPM(lookupChar(data[2]) + lookupChar(data[3]));
   }
 
+  // IS BPM OF 3 DIGITS
   if (data[1] == 66 && data[4] != 247) {
     printBPM(lookupChar(data[2]) + lookupChar(data[3]) + lookupChar(data[4]));
+  }
+
+  // IS SWING
+  if (data[1] == 83) {
+    printSwing(lookupChar(data[2]));
   }
   
   for (int i = 0; i < size; i++) {
@@ -244,11 +261,8 @@ void setup() {
   lcd.begin(20, 4);
 
   lcd.setCursor(0, 0);
-  // print from 0 to 9:
-  for (int thisChar = 0; thisChar < 10; thisChar++) {
-    Serial.println(thisChar);
-    lcd.print(thisChar);
-  }
+  printBPM(0);
+  printSwing(0);
 
   usbMIDI.setHandleSystemExclusive(sysexHandler);
   
