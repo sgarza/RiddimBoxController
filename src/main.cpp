@@ -11,10 +11,12 @@ const int chan = 1, vel = 127, rs = 6, en = 7;
 const int bpmCC = 1, 
           swingCC = 2,
           nextPrevCC = 3,
-          repeatCC = 4;
+          repeatCC = 4,
+          endCC = 5;
 const int noteNext = 1, 
           notePrev = 2,
-          noteRepeat = 1;
+          noteRepeat = 1,
+          noteEnd = 1;
 // const int notePlay = 1;
 char keys[ROWS][COLS] = {
   {'d','e','f'},
@@ -198,6 +200,7 @@ void keypadEvent(KeypadEvent key){
 
     if (key == 'f') {
       Serial.println("Pressed End");
+      usbMIDI.sendControlChange(endCC, noteEnd, chan);
     }
 
     break;
