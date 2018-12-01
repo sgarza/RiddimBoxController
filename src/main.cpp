@@ -5,6 +5,8 @@
 #include <MIDI_Controller.h>
 #include <Keypad.h>
 
+byte controllerMode = 0; // Default mode 0 (0: Drum Machine, 1: Looper)
+
 const byte ROWS = 2; //four rows
 const byte COLS = 3; //four columns
 const int chan = 1, vel = 127, rs = 6, en = 7;
@@ -12,11 +14,15 @@ const int bpmCC = 1,
           swingCC = 2,
           nextPrevCC = 3,
           repeatCC = 4,
-          endCC = 5;
+          endCC = 5,
+          looperCC = 6;
 const int noteNext = 1, 
           notePrev = 2,
           noteRepeat = 1,
-          noteEnd = 1;
+          noteEnd = 1,
+          noteLooperRec = 1,
+          noteLooperPlay = 2,
+          noteLooperUndo = 3;
 // const int notePlay = 1;
 char keys[ROWS][COLS] = {
   {'d','e','f'},
@@ -166,6 +172,19 @@ void printButton(char key) {
   lcd.print("Button: " + String(key));
 }
 
+void printMode() {
+  lcd.setCursor(0, 0);
+  lcd.print("MODE:               ");
+  lcd.setCursor(0, 0);
+  if (controllerMode == 0) {
+    lcd.print("MODE: Drum-Machine");
+  }
+
+  if (controllerMode == 1) {
+    lcd.print("MODE: Looper");
+  }
+}
+
 // Keypad Event
 void keypadEvent(KeypadEvent key){
   Serial.println(key);
@@ -174,45 +193,81 @@ void keypadEvent(KeypadEvent key){
   switch (buttons.getState()){
   case PRESSED:
     if (key == 'a') {
-      Serial.println("Pressed Prev");
-      usbMIDI.sendControlChange(nextPrevCC, notePrev, chan);
+      if (controllerMode == 0) {
+        Serial.println("Pressed Prev");
+        usbMIDI.sendControlChange(nextPrevCC, notePrev, chan);
+      }
+
+      if (controllerMode == 1) {
+        Serial.println("Pressed Rec");
+        usbMIDI.sendControlChange(looperCC, noteLooperRec, chan);
+      }
     }
 
     if (key == 'b') {
-      Serial.println("Pressed Play");
+      if (controllerMode == 0) {
+        Serial.println("Pressed Play");
         usbMIDI.sendRealTime(usbMIDI.Start);
       }
 
+      if (controllerMode == 1) {
+        Serial.println("Pressed Looper Play");
+        usbMIDI.sendControlChange(looperCC, noteLooperPlay, chan);
+      }
+    }
+
     if (key == 'c') {
-      Serial.println("Pressed Next");
-      usbMIDI.sendControlChange(nextPrevCC, noteNext, chan);
+      if (controllerMode == 0) {
+        Serial.println("Pressed Next");
+        usbMIDI.sendControlChange(nextPrevCC, noteNext, chan);
+      }
+
+      if (controllerMode == 1) {
+        Serial.println("Pressed UnDo");
+        usbMIDI.sendControlChange(looperCC, noteLooperUndo, chan);
+      }
     }
 
     if (key == 'd') {
-      Serial.println("Pressend Panic!");
-      usbMIDI.sendRealTime(usbMIDI.Stop);
+      Serial.println("Pressed Mode Toggle");
+
+      if (controllerMode == 0) {
+        controllerMode = 1;
+      } else {
+        controllerMode = 0;
+      }
+
+      printMode();
     }
 
     if (key == 'e') {
-      Serial.println("Pressed Repeat");
-      usbMIDI.sendControlChange(repeatCC, noteRepeat, chan);
+      if (controllerMode == 0) {
+        Serial.println("Pressed Repeat");
+        usbMIDI.sendControlChange(repeatCC, noteRepeat, chan);
+      }
     }
 
     if (key == 'f') {
-      Serial.println("Pressed End");
-      usbMIDI.sendControlChange(endCC, noteEnd, chan);
+      if (controllerMode == 0) {
+        Serial.println("Pressed End");
+        usbMIDI.sendControlChange(endCC, noteEnd, chan);
+      }
     }
 
     break;
 
   case HOLD:
     Serial.println("HOLD IT");
+    if (key == 'b') {
+      Serial.println("Pressend Panic!");
+      usbMIDI.sendRealTime(usbMIDI.Stop);
+    }
     break;
   }
 }
 
 void printBPM(String bpm) {
-  lcd.setCursor(0, 0);
+  lcd.setCursor(0, 3);
   if (bpm.length() == 2 ) {
     lcd.print("BPM: " + bpm + " ");
   } else {
@@ -223,7 +278,7 @@ void printBPM(String bpm) {
 
 void printSwing(String swing) {
   // col, row
-  lcd.setCursor(12, 0);
+  lcd.setCursor(12, 3);
   lcd.print("Swing: " + swing);
 }
 
@@ -266,12 +321,13 @@ void setup() {
   lcd.setCursor(0, 0);
   printBPM(0);
   printSwing(0);
+  printMode();
 
   usbMIDI.setHandleSystemExclusive(sysexHandler);
   
   // Setup buttons
+  buttons.setHoldTime(350);
   buttons.addEventListener(keypadEvent);
-  buttons.setHoldTime(1500);
 }
 
 void loop() {
