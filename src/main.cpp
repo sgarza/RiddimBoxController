@@ -20,9 +20,8 @@ const int noteNext = 1,
           notePrev = 2,
           noteRepeat = 1,
           noteEnd = 1,
-          noteLooperRec = 1,
-          noteLooperPlay = 2,
-          noteLooperUndo = 3;
+          noteLooperPlay = 1,
+          noteLooperUndo = 2;
 // const int notePlay = 1;
 char keys[ROWS][COLS] = {
   {'d','e','f'},
@@ -199,8 +198,8 @@ void keypadEvent(KeypadEvent key){
       }
 
       if (controllerMode == 1) {
-        Serial.println("Pressed Rec");
-        usbMIDI.sendControlChange(looperCC, noteLooperRec, chan);
+        Serial.println("Pressed Undo");
+        usbMIDI.sendControlChange(looperCC, noteLooperUndo, chan);
       }
     }
 
@@ -222,10 +221,6 @@ void keypadEvent(KeypadEvent key){
         usbMIDI.sendControlChange(nextPrevCC, noteNext, chan);
       }
 
-      if (controllerMode == 1) {
-        Serial.println("Pressed UnDo");
-        usbMIDI.sendControlChange(looperCC, noteLooperUndo, chan);
-      }
     }
 
     if (key == 'd') {
