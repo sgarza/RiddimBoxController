@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <LiquidCrystal.h>
-#define USE_ROTARY_ENCODER
-#define ENCODER_OPTIMIZE_INTERRUPTS
+#include <CapacitiveSensor.h>
 #include <MIDI_Controller.h>
 #include <Keypad.h>
 
@@ -21,24 +20,41 @@ const int noteNext = 1,
           noteRepeat = 1,
           noteEnd = 1,
           noteLooperPlay = 1,
-          noteLooperUndo = 2;
-// const int notePlay = 1;
+          noteLooperUndo = 2,
+          noteBPMUp = 127,
+          noteBPMDown = 1,
+          noteSwingLeft = 1,
+          noteSwingRight = 127;
+
 char keys[ROWS][COLS] = {
   {'d','e','f'},
   {'a','b','c'}
 };
-byte rowPins[ROWS] = {9, 8}; //connect to the row pinouts of the keypad
+byte rowPins[ROWS] = {8, 9}; //connect to the row pinouts of the keypad
 byte colPins[COLS] = {12, 11, 10}; //connect to the column pinouts of the keypad
 
 //initialize an instance of class NewKeypad
 Keypad buttons = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS); 
 
 LiquidCrystal lcd(rs, en, 2, 3, 4, 5);
-RotaryEncoder bpmEncoder(23, 22, bpmCC, chan, 1, NORMAL_ENCODER, TWOS_COMPLEMENT);
-RotaryEncoder swingEncoder(20, 19, swingCC, chan, 1, NORMAL_ENCODER, TWOS_COMPLEMENT);
 
-Digital bpmButton(21, 7, chan, vel);
-Digital swingButton(18, 8, chan, vel);
+// Capacitive sensors
+const byte capacitiveSendPin = 18;
+const byte bpmUpPin = 22;
+const byte bpmDownPin = 21;
+const byte swingLeftPin = 20;
+const byte swingRightPin = 19;
+const long capThreshold = 4000;
+int upCount = 0;
+int downCount = 0;
+int leftCount = 0;
+int rightCount = 0;
+const int countLimit = 20;
+
+CapacitiveSensor bpmUp = CapacitiveSensor(capacitiveSendPin, bpmUpPin);
+CapacitiveSensor bpmDown = CapacitiveSensor(capacitiveSendPin, bpmDownPin);
+CapacitiveSensor swingRight = CapacitiveSensor(capacitiveSendPin, swingRightPin);
+CapacitiveSensor swingLeft = CapacitiveSensor(capacitiveSendPin, swingLeftPin);
 
 String lookupChar(int i) {
   // Serial.println("Looking up for: " + String(i));
@@ -310,6 +326,53 @@ void sysexHandler(byte *data, unsigned int size) {
   Serial.println("=============");
 }
 
+void checkCapacitors() {
+  long up = bpmUp.capacitiveSensor(30);
+  long down = bpmDown.capacitiveSensor(30);
+  long left = swingLeft.capacitiveSensor(30);
+  long right = swingRight.capacitiveSensor(30);
+
+  if (up > capThreshold) {
+    upCount += 1;
+    if (upCount > countLimit) {
+      Serial.println(String(up));
+      upCount = 0;
+      bpmUp.reset_CS_AutoCal();
+      usbMIDI.sendControlChange(bpmCC, noteBPMUp, chan);
+    }
+  }
+
+  if (down > capThreshold) {
+    downCount += 1;
+    if (downCount > countLimit) {
+      Serial.println(String(down));
+      downCount = 0;
+      bpmDown.reset_CS_AutoCal();
+      usbMIDI.sendControlChange(bpmCC, noteBPMDown, chan);
+    }
+  }
+
+  if (left > capThreshold) {
+    leftCount += 1;
+    if (leftCount > countLimit) {
+      Serial.println(String(left));
+      leftCount = 0;
+      swingLeft.reset_CS_AutoCal();
+      usbMIDI.sendControlChange(swingCC, noteSwingLeft, chan);
+    }
+  }
+
+  if (right > capThreshold) {
+    rightCount += 1;
+    if (rightCount > countLimit) {
+      Serial.println(String(right));
+      rightCount = 0;
+      swingRight.reset_CS_AutoCal();
+      usbMIDI.sendControlChange(swingCC, noteSwingRight, chan);
+    }
+  }
+}
+
 void setup() {
   lcd.begin(20, 4);
 
@@ -330,4 +393,6 @@ void loop() {
   MIDI_Controller.refresh();
 
   buttons.getKey();
+
+  checkCapacitors(); 
 }
