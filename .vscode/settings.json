@@ -1,6 +1,6 @@
 {
     "terminal.integrated.env.linux": {
-        "PATH": "/home/sgarza/.platformio/penv/bin:/home/sgarza/.platformio/penv:/home/sgarza/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "PATH": "/home/sgarza/.platformio/penv/bin:/home/sgarza/.platformio/penv:/home/sgarza/.rvm/gems/ruby-2.5.5/bin:/home/sgarza/.rvm/gems/ruby-2.5.5@global/bin:/home/sgarza/.rvm/rubies/ruby-2.5.5/bin:/home/sgarza/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/sgarza/.rvm/bin:/home/sgarza/.rvm/bin:/home/sgarza/.rvm/bin",
         "PLATFORMIO_CALLER": "vscode"
     }
 }

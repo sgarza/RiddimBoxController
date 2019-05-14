@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.linux": {
+			"PATH": "/home/sgarza/.platformio/penv/bin:/home/sgarza/.platformio/penv:/home/sgarza/.rvm/gems/ruby-2.5.5/bin:/home/sgarza/.rvm/gems/ruby-2.5.5@global/bin:/home/sgarza/.rvm/rubies/ruby-2.5.5/bin:/home/sgarza/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/home/sgarza/.rvm/bin:/home/sgarza/.rvm/bin:/home/sgarza/.rvm/bin",
+			"PLATFORMIO_CALLER": "vscode"
+		},
+		"workbench.colorCustomizations": {
+			"activityBar.background": "#d04649",
+			"activityBar.foreground": "#e7e7e7",
+			"activityBar.inactiveForeground": "#e7e7e799",
+			"activityBarBadge.background": "#37cb34",
+			"activityBarBadge.foreground": "#15202b",
+			"titleBar.activeBackground": "#b52e31",
+			"titleBar.inactiveBackground": "#b52e3199",
+			"titleBar.activeForeground": "#e7e7e7",
+			"titleBar.inactiveForeground": "#e7e7e799",
+			"statusBar.background": "#b52e31",
+			"statusBarItem.hoverBackground": "#d04649",
+			"statusBar.foreground": "#e7e7e7"
+		}
+	}
+}
